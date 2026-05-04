@@ -2,6 +2,19 @@
 
 Production-oriented fixed-size thread pool in C++17 with a bounded task queue, backpressure, instrumentation, graceful shutdown, and a benchmark matrix that exposes scaling behavior across workload sizes and thread counts.
 
+## Layout
+
+```text
+.
+├── src/
+│   ├── thread_pool.h
+│   └── thread_pool.cpp
+└── benchmarks/
+    └── benchmark.cpp
+```
+
+`src/` contains only the reusable `ThreadPool` class. The benchmark driver and `main()` live separately in `benchmarks/`.
+
 ## Highlights
 
 | Feature | Implementation |
@@ -79,15 +92,22 @@ For a general-purpose pool, a mutex queue is often the right first production de
 Linux/macOS:
 
 ```bash
-g++ -std=c++17 -O2 -pthread thread_pool.cpp -o thread_pool
-./thread_pool
+g++ -std=c++17 -O2 -pthread src/thread_pool.cpp benchmarks/benchmark.cpp -o thread_pool_benchmark
+./thread_pool_benchmark
 ```
 
 Windows with MSVC Developer Command Prompt:
 
 ```bat
-cl /std:c++17 /O2 /EHsc thread_pool.cpp
-thread_pool.exe
+cl /std:c++17 /O2 /EHsc /I src src\thread_pool.cpp benchmarks\benchmark.cpp /Fe:thread_pool_benchmark.exe
+thread_pool_benchmark.exe
+```
+
+Windows with MinGW/MSYS2:
+
+```powershell
+g++ -std=c++17 -O2 -pthread src/thread_pool.cpp benchmarks/benchmark.cpp -o thread_pool_benchmark.exe
+.\thread_pool_benchmark.exe
 ```
 
 ## Example Output
@@ -127,4 +147,3 @@ Small tasks often flatten early because dispatch overhead is a large fraction of
 - Batching dequeue operations to amortize lock acquisition.
 - Cancellation tokens and deadlines.
 - NUMA-aware scheduling for large multi-socket systems.
-
